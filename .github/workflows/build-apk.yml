@@ -1,4 +1,4 @@
-name: Build TWA APK
+name: Build TWA APK (Fully Automatic)
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1️⃣ گرفتن کد از ریپو
+    # 1️⃣ گرفتن کد
     - name: Checkout Repo
       uses: actions/checkout@v3
 
@@ -21,7 +21,7 @@ jobs:
       with:
         node-version: 18
 
-    # 3️⃣ نصب Java JDK (برای build APK)
+    # 3️⃣ نصب Java JDK
     - name: Setup Java
       uses: actions/setup-java@v3
       with:
@@ -32,7 +32,19 @@ jobs:
     - name: Install Bubblewrap
       run: npm install -g @bubblewrap/cli
 
-    # 5️⃣ ایجاد پروژه Bubblewrap
+    # 5️⃣ ایجاد keystore خودکار
+    - name: Create temporary keystore
+      run: |
+        keytool -genkeypair -v \
+          -keystore temp-keystore.jks \
+          -keyalg RSA -keysize 2048 \
+          -validity 10000 \
+          -alias tempalias \
+          -storepass 123456 \
+          -keypass 123456 \
+          -dname "CN=BimenNatYar, OU=Dev, O=MyCompany, L=City, ST=State, C=IR"
+
+    # 6️⃣ Initialize Bubblewrap پروژه با keystore خودکار
     - name: Initialize Bubblewrap project
       run: |
         bubblewrap init \
@@ -40,20 +52,20 @@ jobs:
           --package-id ir.bimennatyar.app \
           --app-name "BimenNatYar" \
           --launcher-icon ./static/icons/icon-512.png \
+          --keystore-path ./temp-keystore.jks \
+          --keystore-alias tempalias \
+          --keystore-password 123456 \
+          --key-password 123456 \
           --no-prompt
 
-    # 6️⃣ نمایش محتویات پوشه برای اطمینان از مسیر درست
-    - name: List project folder
-      run: ls -la
-
-    # 7️⃣ ساخت APK با verbose برای خطایابی
+    # 7️⃣ Build APK
     - name: Build APK
       run: |
         cd TWAProject
         bubblewrap build --verbose
 
-    # 8️⃣ آپلود APK ساخته شده
-    - name: Upload APK as artifact
+    # 8️⃣ Upload APK
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: bimennatyar-apk
