@@ -11,17 +11,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1️⃣ گرفتن کد از ریپو
     - name: Checkout Repo
       uses: actions/checkout@v3
 
+    # 2️⃣ نصب Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 18
 
+    # 3️⃣ نصب Java JDK (برای build APK)
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 17
+
+    # 4️⃣ نصب Bubblewrap
     - name: Install Bubblewrap
       run: npm install -g @bubblewrap/cli
 
+    # 5️⃣ ایجاد پروژه Bubblewrap
     - name: Initialize Bubblewrap project
       run: |
         bubblewrap init \
@@ -31,11 +42,17 @@ jobs:
           --launcher-icon ./static/icons/icon-512.png \
           --no-prompt
 
+    # 6️⃣ نمایش محتویات پوشه برای اطمینان از مسیر درست
+    - name: List project folder
+      run: ls -la
+
+    # 7️⃣ ساخت APK با verbose برای خطایابی
     - name: Build APK
       run: |
         cd TWAProject
-        bubblewrap build
+        bubblewrap build --verbose
 
+    # 8️⃣ آپلود APK ساخته شده
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v4
       with:
