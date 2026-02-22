@@ -1,0 +1,24 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ir.bimennatyar.ir">
+
+    <application
+        android:label="My TWA"
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
+
+        <activity
+            android:name="androidx.browser.trusted.TrustedWebActivityLauncher"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="bimennatyar.ir" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="android.support.customtabs.trusted.DEFAULT_URL"
+            android:value="https://bimennatyar.ir/accounts/login/" />
+    </application>
+</manifest>
