@@ -1,0 +1,43 @@
+name: Build TWA APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Install Bubblewrap
+      run: npm install -g @bubblewrap/cli
+
+    - name: Initialize Bubblewrap project
+      run: |
+        bubblewrap init \
+          --manifest https://bimennatyar.ir/manifest.json \
+          --package-id ir.bimennatyar.app \
+          --app-name "BimenNatYar" \
+          --launcher-icon ./static/icons/icon-512.png \
+          --no-prompt
+
+    - name: Build APK
+      run: |
+        cd TWAProject
+        bubblewrap build
+
+    - name: Upload APK as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: bimennatyar-apk
+        path: TWAProject/app-release-signed.apk
